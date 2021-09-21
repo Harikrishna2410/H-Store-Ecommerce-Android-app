@@ -52,9 +52,10 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
     ViewHolder v;
     private int newitem;
     String TAG = this.getClass().getName();
-    itemdetails itemdetails;
+    ItemDetails itemdetails;
 
-    public ItemAdp(itemdetails ite) {
+    public ItemAdp(Context context, ItemDetails ite) {
+        this.mContext = context;
         this.itemdetails = ite;
     }
 
@@ -78,7 +79,7 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         return new ViewHolder(view);
     }
 
-    public interface itemdetails{
+    public interface ItemDetails {
         void itemDetails(int position);
     }
 
@@ -97,17 +98,18 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         holder.imgIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v(TAG,"Position :- "+position);
-                Log.v(TAG,"datum :- "+datum.getId().toString());
-                Log.v(TAG,"Price :- "+datum.getPrice().toString());
-                Log.v(TAG,"PBonus :- "+datum.getPbonus().toString());
-                itemdetails.itemDetails(position);
+                Log.v(TAG, "Position :- " + position);
+                Log.v(TAG, "datum :- " + datum.getId().toString());
+                Log.v(TAG, "Price :- " + datum.getPrice().toString());
+                Log.v(TAG, "PBonus :- " + datum.getPbonus().toString());
+//                itemdetails.itemDetails(holder.getAdapterPosition());
 
-//                intent.putExtra("MyClass", datum);
-//                intent.putParcelableArrayListExtra("MyList", datum.getPrice());
-//                intent.putParcelableArrayListExtra("MyList1", datum.getPbonus());
-//                intent.putExtra("pos",position);
-                mContext.startActivity(new Intent(mContext, ItemDetailsActivity.class));
+                Intent intent = new Intent(mContext, ItemDetailsActivity.class);
+                intent.putExtra("MyClass", mData.get(position));
+                intent.putParcelableArrayListExtra("MyList", mData.get(position).getPrice());
+                intent.putParcelableArrayListExtra("MyList1", mData.get(position).getPbonus());
+                intent.putExtra("pos",position);
+                mContext.startActivity(intent);
 //                mContext.startActivity(new Intent(mContext, ItemDetailsActivity.class).putExtra("MyClass", datum).putParcelableArrayListExtra("MyList", datum.getPrice()).putParcelableArrayListExtra("MyList1", datum.getPbonus()));
             }
         });
@@ -126,7 +128,14 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(mContext, R.layout.spinner_layout, arrayList);
 */
 
-        ItemWeightAdapter adapter = new ItemWeightAdapter(1,mContext, datum.getPrice(),holder,mData,mData.get(position).getPbonus());
+        ItemWeightAdapter adapter = new ItemWeightAdapter(
+                1,
+                mContext,
+                datum.getPrice(),
+                holder,
+                mData.get(position),
+                mData.get(position).getPbonus()
+        );
         holder.rv_weight_items.setAdapter(adapter);
         holder.rv_weight_items.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         holder.lvlSubitem.setVisibility(View.VISIBLE);
@@ -223,7 +232,7 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         void onItemClick(View view, int position);
     }
 
-    public void setJoinPlayrList(Context context,LinearLayout lnrView, ProductItem datum, Price price, Pbonus pbonus) {
+    public void setJoinPlayrList(Context context, LinearLayout lnrView, ProductItem datum, Price price, Pbonus pbonus, boolean visibility) {
         lnrView.removeAllViews();
         final int[] count = {0};
         DatabaseHelper helper = new DatabaseHelper(lnrView.getContext());
@@ -244,14 +253,23 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         myCart.setBonus(pbonus.getProductBonus());
         myCart.setDiscount(datum.getmDiscount());
         int qrt = helper.getCard(myCart.getPid(), myCart.getCost());
+
+
+
+
         if (qrt != -1) {
             count[0] = qrt;
             txtcount.setText("" + count[0]);
             lvlAddremove.setVisibility(View.VISIBLE);
             lvlAddcart.setVisibility(View.GONE);
         } else {
-            lvlAddremove.setVisibility(View.GONE);
-            lvlAddcart.setVisibility(View.VISIBLE);
+            if (visibility == true){
+                lvlAddremove.setVisibility(View.GONE);
+                lvlAddcart.setVisibility(View.VISIBLE);
+            }else {
+                lvlAddremove.setVisibility(View.GONE);
+                lvlAddcart.setVisibility(View.GONE);
+            }
 
         }
         imgMins.setOnClickListener(new View.OnClickListener() {
@@ -290,6 +308,7 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         lvlAddcart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 lvlAddcart.setVisibility(View.GONE);
                 lvlAddremove.setVisibility(View.VISIBLE);
                 count[0] = Integer.parseInt(txtcount.getText().toString());

@@ -43,17 +43,24 @@ public class ItemWeightAdapter extends RecyclerView.Adapter<ItemWeightAdapter.Vi
     int productDetailsView = -1;
 
 
-    public ItemWeightAdapter(int itemsView,Context context, List<Price> list, ItemAdp.ViewHolder pViewHolder, List<ProductItem> mData, List<Pbonus> pbonuses) {
+    public ItemWeightAdapter(int itemsView, Context context, List<Price> list, ItemAdp.ViewHolder pViewHolder ,ProductItem mData, List<Pbonus> pbonuses) {
         this.productDetailsView = itemsView;
         this.context = context;
         this.list = list;
         this.pViewHolder = pViewHolder;
-        this.mData = mData;
+        this.dataaa = mData;
         sessionManager = new SessionManager(context);
         this.pbonuses = pbonuses;
     }
-
-    public ItemWeightAdapter(int productDetailsView, ItemDetailsActivity context, ArrayList<Price> price, ItemDetailsActivity itemDetailsActivity, ProductItem mData, ArrayList<Pbonus> pBonuslist,onRvWeightItemClickListner rvWeightItemClickListner) {
+    public ItemWeightAdapter(
+            int productDetailsView,
+            ItemDetailsActivity context,
+            ArrayList<Price> price,
+            ItemDetailsActivity itemDetailsActivity,
+            ProductItem mData,
+            ArrayList<Pbonus> pBonuslist,
+            onRvWeightItemClickListner rvWeightItemClickListner
+    ) {
         this.productDetailsView = productDetailsView;
         this.context = context;
         this.list = price;
@@ -62,7 +69,9 @@ public class ItemWeightAdapter extends RecyclerView.Adapter<ItemWeightAdapter.Vi
         sessionManager = new SessionManager(context);
         this.pbonuses = pBonuslist;
         this.rvWeightItemClickListner = rvWeightItemClickListner;
+
     }
+
 
     public interface onRvWeightItemClickListner {
         void onItemWeightClickListner(int position);
@@ -78,10 +87,9 @@ public class ItemWeightAdapter extends RecyclerView.Adapter<ItemWeightAdapter.Vi
     @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(ViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (productDetailsView == 1){
+        if (productDetailsView == 1) {
             Price p = list.get(position);
             ItemAdp iad = new ItemAdp();
-            ProductItem datum = mData.get(position);
             Pbonus pbonus = pbonuses.get(position);
 
             holder.weights.setText(p.getProductType());
@@ -90,22 +98,31 @@ public class ItemWeightAdapter extends RecyclerView.Adapter<ItemWeightAdapter.Vi
                 @Override
                 public void onClick(View view) {
                     if (lastCheckedPos != position) {
-                        if (datum.getmDiscount() > 0) {
-                            double res = (Double.parseDouble(p.getProductPrice()) / 100.0f) * datum.getmDiscount();
+                        Log.v(TAG, String.valueOf(dataaa.getmDiscount()));
+                        if (dataaa.getmDiscount() > 0) {
+                            double res = (Double.parseDouble(p.getProductPrice()) / 100.0f) * dataaa.getmDiscount();
                             res = Double.parseDouble(p.getProductPrice()) - res;
+                            pViewHolder.txtItemOffer.setVisibility(View.VISIBLE);
+                            pViewHolder.txtPrice.setVisibility(View.VISIBLE);
                             pViewHolder.txtItemOffer.setText(sessionManager.getStringData(currncy) + p.getProductPrice());
                             pViewHolder.txtItemOffer.setPaintFlags(pViewHolder.txtItemOffer.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                             pViewHolder.txtPrice.setText(sessionManager.getStringData(currncy) + new DecimalFormat("##.##").format(res));
                             pViewHolder.txtItemOffer.setText(sessionManager.getStringData(currncy) + p.getProductPrice());
                         } else {
+                            pViewHolder.txtPrice.setVisibility(View.VISIBLE);
                             pViewHolder.txtItemOffer.setVisibility(View.GONE);
                             pViewHolder.txtPrice.setText(sessionManager.getStringData(currncy) + p.getProductPrice());
                         }
-                        iad.setJoinPlayrList(context, pViewHolder.lvlSubitem, datum, p, pbonus);
+                        iad.setJoinPlayrList(context, pViewHolder.lvlSubitem, dataaa, p, pbonus, true);
 
                         lastCheckedPos = position;
                     } else {
                         lastCheckedPos = -1;
+                        if (lastCheckedPos == -1) {
+                            pViewHolder.txtItemOffer.setVisibility(View.GONE);
+                            pViewHolder.txtPrice.setVisibility(View.GONE);
+                            iad.setJoinPlayrList(context, pViewHolder.lvlSubitem, dataaa, p, pbonus, false);
+                        }
                     }
                     notifyDataSetChanged();
                 }
@@ -118,8 +135,7 @@ public class ItemWeightAdapter extends RecyclerView.Adapter<ItemWeightAdapter.Vi
                 holder.weights.setTextColor(ContextCompat.getColor(context, R.color.colorBalck));
                 holder.parent.setBackgroundResource(R.drawable.deselected_address_type_review);
             }
-        }
-        else if (productDetailsView == 2){
+        } else if (productDetailsView == 2) {
             Price p = list.get(position);
             holder.weights.setText(p.getProductType());
             holder.parent.setOnClickListener(new View.OnClickListener() {

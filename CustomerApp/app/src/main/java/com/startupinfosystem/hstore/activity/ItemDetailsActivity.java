@@ -1,6 +1,7 @@
 package com.startupinfosystem.hstore.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -56,7 +57,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit2.Call;
 
-public class ItemDetailsActivity extends AppCompatActivity implements GetResult.MyListener, ReletedItemAdp.ItemClickListener, ItemWeightAdapter.onRvWeightItemClickListner, ItemAdp.itemdetails {
+public class ItemDetailsActivity extends AppCompatActivity implements GetResult.MyListener, ReletedItemAdp.ItemClickListener, ItemWeightAdapter.onRvWeightItemClickListner {
     ProductItem productItem;
     @BindView(R.id.img_back)
     ImageView imgBack;
@@ -122,19 +123,22 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
         custPrograssbar = new CustPrograssbar();
         sessionManager = new SessionManager(this);
         databaseHelper = new DatabaseHelper(ItemDetailsActivity.this);
-        /*productItem = (ProductItem) getIntent().getParcelableExtra("MyClass");
+        productItem = (ProductItem) getIntent().getParcelableExtra("MyClass");
         priceslist = getIntent().getParcelableArrayListExtra("MyList");
-        pBonuslist = getIntent().getParcelableArrayListExtra("MyList1");*/
-//        pos = getIntent().getIntExtra("pos",0);
+        pBonuslist = getIntent().getParcelableArrayListExtra("MyList1");
+        Intent intent = getIntent();
+        pos = intent.getIntExtra("pos",0);
         recyclerReleted.setItemAnimator(new DefaultItemAnimator());
-        mData = new ArrayList<>();
+
+//        priceslist = productItem.getPrice();
+//        pBonuslist = productItem.getPbonus();
+//        mData = new ArrayList<>();
 
         onSetdata();
     }
 
 
     private void onSetdata() {
-        ItemAdp idp = new ItemAdp(this);
         if (productItem != null) {
 
             txtTitle.setText("" + productItem.getProductName());
@@ -348,16 +352,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
         }
 
         setJoinPlayrList(getApplicationContext(), lvlPricelist, productItem, priceslist.get(position), pBonuslist.get(position));
-    }
-
-    @Override
-    public void itemDetails(int position) {
-        List<ProductItem> productItems = new ArrayList<>();
-        ProductItem productItem = productItems.get(position);
-
-        priceslist = productItem.getPrice();
-        pBonuslist = productItem.getPbonus();
-
     }
 
 
