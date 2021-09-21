@@ -1,5 +1,6 @@
 package com.startupinfosystem.hstore.adepter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
@@ -42,7 +43,7 @@ import static com.startupinfosystem.hstore.fragment.ItemListFragment.itemListFra
 import static com.startupinfosystem.hstore.utils.SessionManager.currncy;
 
 public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
-    private List<ProductItem> mData;
+    public List<ProductItem> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     Context mContext;
@@ -51,6 +52,11 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
     ViewHolder v;
     private int newitem;
     String TAG = this.getClass().getName();
+    itemdetails itemdetails;
+
+    public ItemAdp(itemdetails ite) {
+        this.itemdetails = ite;
+    }
 
     public ItemAdp() {
     }
@@ -72,8 +78,12 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         return new ViewHolder(view);
     }
 
+    public interface itemdetails{
+        void itemDetails(int position);
+    }
+
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, @SuppressLint("RecyclerView") int position) {
         v = holder;
         datum = mData.get(position);
         if (datum.getStock() == 0) {
@@ -87,7 +97,18 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         holder.imgIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mContext.startActivity(new Intent(mContext, ItemDetailsActivity.class).putExtra("MyClass", datum).putParcelableArrayListExtra("MyList", datum.getPrice()).putParcelableArrayListExtra("MyList1", datum.getPbonus()));
+                Log.v(TAG,"Position :- "+position);
+                Log.v(TAG,"datum :- "+datum.getId().toString());
+                Log.v(TAG,"Price :- "+datum.getPrice().toString());
+                Log.v(TAG,"PBonus :- "+datum.getPbonus().toString());
+                itemdetails.itemDetails(position);
+
+//                intent.putExtra("MyClass", datum);
+//                intent.putParcelableArrayListExtra("MyList", datum.getPrice());
+//                intent.putParcelableArrayListExtra("MyList1", datum.getPbonus());
+//                intent.putExtra("pos",position);
+                mContext.startActivity(new Intent(mContext, ItemDetailsActivity.class));
+//                mContext.startActivity(new Intent(mContext, ItemDetailsActivity.class).putExtra("MyClass", datum).putParcelableArrayListExtra("MyList", datum.getPrice()).putParcelableArrayListExtra("MyList1", datum.getPbonus()));
             }
         });
         if (datum.getmDiscount() > 0) {
@@ -109,7 +130,7 @@ public class ItemAdp extends RecyclerView.Adapter<ItemAdp.ViewHolder> {
         holder.rv_weight_items.setAdapter(adapter);
         holder.rv_weight_items.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.HORIZONTAL, false));
         holder.lvlSubitem.setVisibility(View.VISIBLE);
-       /* dataAdapter.setDropDownViewResource(R.layout.spinner_layout);
+       /* dataAdapter.setDropDownViewResource(R.layout.spinn0er_layout);
         holder.spinner.setAdapter(dataAdapter);
         holder.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

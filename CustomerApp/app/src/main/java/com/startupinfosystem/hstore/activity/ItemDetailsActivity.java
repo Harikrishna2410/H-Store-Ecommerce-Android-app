@@ -25,6 +25,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.bumptech.glide.Glide;
 import com.startupinfosystem.hstore.R;
+import com.startupinfosystem.hstore.adepter.ItemAdp;
 import com.startupinfosystem.hstore.adepter.ItemWeightAdapter;
 import com.startupinfosystem.hstore.adepter.ReletedItemAdp;
 import com.startupinfosystem.hstore.database.DatabaseHelper;
@@ -55,7 +56,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit2.Call;
 
-public class ItemDetailsActivity extends AppCompatActivity implements GetResult.MyListener, ReletedItemAdp.ItemClickListener, ItemWeightAdapter.onRvWeightItemClickListner{
+public class ItemDetailsActivity extends AppCompatActivity implements GetResult.MyListener, ReletedItemAdp.ItemClickListener, ItemWeightAdapter.onRvWeightItemClickListner, ItemAdp.itemdetails {
     ProductItem productItem;
     @BindView(R.id.img_back)
     ImageView imgBack;
@@ -76,6 +77,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
     ArrayList<Price> priceslist;
     ArrayList<Pbonus> pBonuslist;
     List<ProductItem> mData;
+    int pos;
     DatabaseHelper databaseHelper;
     SessionManager sessionManager;
     @BindView(R.id.spinner)
@@ -120,9 +122,10 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
         custPrograssbar = new CustPrograssbar();
         sessionManager = new SessionManager(this);
         databaseHelper = new DatabaseHelper(ItemDetailsActivity.this);
-        productItem = (ProductItem) getIntent().getParcelableExtra("MyClass");
+        /*productItem = (ProductItem) getIntent().getParcelableExtra("MyClass");
         priceslist = getIntent().getParcelableArrayListExtra("MyList");
-        pBonuslist = getIntent().getParcelableArrayListExtra("MyList1");
+        pBonuslist = getIntent().getParcelableArrayListExtra("MyList1");*/
+//        pos = getIntent().getIntExtra("pos",0);
         recyclerReleted.setItemAnimator(new DefaultItemAnimator());
         mData = new ArrayList<>();
 
@@ -131,8 +134,9 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
 
 
     private void onSetdata() {
-
+        ItemAdp idp = new ItemAdp(this);
         if (productItem != null) {
+
             txtTitle.setText("" + productItem.getProductName());
             txtDesc.setText("" + productItem.getShortDesc());
             txtSeler.setText("" + productItem.getSellerName());
@@ -144,7 +148,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
             ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, R.layout.spinner_layout, arrayList);
             spinner.setAdapter(dataAdapter);*/
 
-            ItemWeightAdapter adapter = new ItemWeightAdapter(2,this, priceslist,this,productItem,pBonuslist,this);
+            ItemWeightAdapter adapter = new ItemWeightAdapter(2, this, priceslist, this, productItem, pBonuslist, this);
             rv_item_details_weight.setAdapter(adapter);
             rv_item_details_weight.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
@@ -166,7 +170,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
                     txtItemOffer.setVisibility(View.GONE);
                     txtPrice.setText(sessionManager.getStringData(SessionManager.currncy) + priceslist.get(position).getProductPrice());
                 }
-                setJoinPlayrList(getApplicationContext(),lvlPricelist, productItem, priceslist.get(position), pBonuslist.get(position));
+                setJoinPlayrList(getApplicationContext(), lvlPricelist, productItem, priceslist.get(position), pBonuslist.get(position));
             }
 
             @Override
@@ -211,7 +215,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
         }
     }
 
-    public void setJoinPlayrList(Context context,LinearLayout lnrView, ProductItem datum, Price price, Pbonus pbonus) {
+    public void setJoinPlayrList(Context context, LinearLayout lnrView, ProductItem datum, Price price, Pbonus pbonus) {
 
         lnrView.removeAllViews();
         final int[] count = {0};
@@ -343,8 +347,19 @@ public class ItemDetailsActivity extends AppCompatActivity implements GetResult.
             txtPrice.setText(sessionManager.getStringData(SessionManager.currncy) + priceslist.get(position).getProductPrice());
         }
 
-        setJoinPlayrList(getApplicationContext(),lvlPricelist, productItem, priceslist.get(position), pBonuslist.get(position));
+        setJoinPlayrList(getApplicationContext(), lvlPricelist, productItem, priceslist.get(position), pBonuslist.get(position));
     }
+
+    @Override
+    public void itemDetails(int position) {
+        List<ProductItem> productItems = new ArrayList<>();
+        ProductItem productItem = productItems.get(position);
+
+        priceslist = productItem.getPrice();
+        pBonuslist = productItem.getPbonus();
+
+    }
+
 
     public class MyCustomPagerAdapter extends PagerAdapter {
         Context context;
